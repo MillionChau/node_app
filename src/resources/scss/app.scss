@@ -1,0 +1,9 @@
+@use 'variables';
+
+h1 {
+    color: variables.$primary-color;
+}
+
+h2 {
+    color: variables.$red-color;
+}

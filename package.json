@@ -1,0 +1,26 @@
+{
+  "name": "node_app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --inspect ./src/index.js",
+    "watch": "sass  --embed-source-map --watch  ./src/resources/scss/app.scss ./src/public/css/app.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.7",
+    "pretier": "^0.0.1",
+    "sass": "^1.80.6"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1"
+  }
+}
