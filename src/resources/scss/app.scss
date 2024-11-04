@@ -1,9 +1,30 @@
 @use 'variables';
 
 h1 {
-    color: variables.$primary-color;
+  color: variables.$primary-color;
 }
 
 h2 {
-    color: variables.$red-color;
+  color: variables.$red-color;
+}
+
+.card-course-item {
+  margin-top: 15px;
+}
+
+.row {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .row {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
 }
