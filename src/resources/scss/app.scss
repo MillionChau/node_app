@@ -16,15 +16,83 @@ h2 {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  @media (min-width: 768px) {
+    .row {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .row {
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
 }
-@media (min-width: 768px) {
-  .row {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+footer {
+  background-color: variables.$footer-bg-color; // bạn có thể định nghĩa biến màu cho nền footer
+  color: variables.$footer-text-color; // biến màu cho văn bản footer
+  padding: 1.5rem 0;
+
+  .container {
+    .row {
+      .col-md-4 {
+        h5 {
+          font-size: 1.25rem;
+          margin-bottom: 1rem;
+        }
+
+        p {
+          font-size: 0.875rem;
+          line-height: 1.6;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+
+          li {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            
+            a {
+              color: variables.$footer-link-color;
+              text-decoration: none;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+
+            i {
+              margin-right: 0.5rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .text-center {
+    margin-top: 1rem;
+
+    p {
+      margin-bottom: 0;
+      font-size: 0.875rem;
+    }
   }
 }
 
-@media (min-width: 1200px) {
-  .row {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+.card-body {
+  a {
+    text-decoration: none;
   }
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-right: 4px;
 }
