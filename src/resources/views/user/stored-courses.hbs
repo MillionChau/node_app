@@ -1,0 +1,70 @@
+<div class="container mt-4">
+    <h2>Khoá học của tôi</h2>
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Tên khoá học</th>
+                    <th scope="col">Trình độ</th>
+                    <th scope="col" colspan="3">Thời gian</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each courses}}
+                    <tr>
+                        <th scope="row">{{sum @index 1}}</th>
+                        <td>{{this.name}}</td>
+                        <td>{{this.level}}</td>
+                        <td>{{this.createdAt}}</td>
+                        <td>
+                            <a href="/courses/{{this._id}}/edit" class="btn btn-light">Update</a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-light" data-id="{{this._id}}" data-bs-toggle="modal" data-bs-target="#deleteCourseModal">Delete</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Confirm delete modal -->
+<div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-labelledby="deleteCourseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCourseModalLabel">Submit your change</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>The course will be deleted permanently and cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirmDeleteButton" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Undo</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{!-- Delete hidden form --}}
+<form name="deleteForm" method="POST" action=""></form>
+
+<script>
+    const deleteCourseModal = document.getElementById('deleteCourseModal')
+    if (deleteCourseModal) {
+        let courseId
+        let deleteForm = document.forms['deleteForm']
+        deleteCourseModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget
+            courseId = button.getAttribute('data-id')
+        })
+
+        const btnDeleteCourse = document.getElementById('confirmDeleteButton')
+        btnDeleteCourse.onclick = () => {
+            deleteForm.action = '/courses/' + courseId + '?_method=DELETE'
+            deleteForm.submit()
+        }
+    }
+</script>
