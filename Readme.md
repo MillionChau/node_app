@@ -339,3 +339,304 @@ module.exports = {
   },
 };
 ```
+### Bước 7: Thêm các phương thức CRUD
+#### Read
+- Thêm layout show vào file `show.hbs`
+```hbs
+<div class="mt-4">
+    <div class="row">
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <button class="btn btn-primary w-100">Study Now</button>
+            <ul class="list-unstyled">
+                <li>{{course.level}}</li>
+                <li></li>
+                <li></li>
+                <li>{{course.energy}}</li>
+            </ul>
+        </div>
+        <div class="col-12 col-lg-9">
+            <h2 class="h4">{{course.name}}</h2>
+            <div class="embed-responsive embed-responsive-16by9">
+                <iframe class="embed-responsive-item" width="560" height="315" src="https://www.youtube.com/embed/{{course.video}}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <p>{{course.description}}</p>
+        </div>
+    </div>
+</div>
+```
+
+- Chỉnh sửa file `home.hbs` để render ra layout
+```hbs
+      {{#each courses}}
+        <div class="card card-course-item d-flex flex-column">
+            <a href="/courses/{{this.slug}}">
+                <img src="{{this.image}}" class="card-img-top" alt="...">
+            </a>
+            <div class="card-body d-flex flex-column">
+                <a href="/courses/{{this.slug}}">
+                    <h5 class="card-title">{{this.name}}</h5>
+                </a>
+                <p class="card-text">{{this.description}}</p>
+                <a href="#" class="btn btn-primary mt-auto">Buy courses</a>
+            </div>
+        </div>
+      {{/each}}
+```
+
+- Thêm controlers trong file `CoursesController.js`
+```js
+const Course = require('../models/Courses')
+const {mongooseToObject} = require('../../util/mongoose')
+
+class CoursesController {
+  // [GET] / slug
+  show(req, res, next) {
+    Course.findOne({slug: req.params.slug})
+        .then(course => {
+            res.render('courses/show', {course: mongooseToObject(course)})
+        })
+        .catch(next)
+  }
+  
+module.exports = new CoursesController()
+
+```
+
+#### Create và POST lên database
+- Thêm layout trong file `src/resource/views/courses/create.js`
+```hbs
+  <div class="mt-4">
+    <h3>Add course</h3>
+    <form method="POST" action="/courses/store">
+        <div class="mb-3">
+            <label for="name" class="form-label">Course name</label>
+            <input type="name" class="form-control" id="name" name="name">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Course description</label>
+            <input type="text" class="form-control" id="description" name="description">
+        </div>
+        <div class="mb-3">
+            <label for="video" class="form-label">Video ID</label>
+            <input type="text" class="form-control" id="video" name="video">
+        </div>
+         <div class="mb-3">
+            <label for="level" class="form-label">Level</label>
+            <input type="text" class="form-control" id="level" name="level">
+        </div>
+        <div class="mb-3">
+            <label for="energy" class="form-label">Place</label>
+            <input type="text" class="form-control" id="energy" name="energy">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Course</button>
+    </form>
+</div>
+```
+- Thêm controlers trong file `CoursesController.js`
+```js
+  //[GET] / courses / create
+  create(req, res, next) {
+    res.render('courses/create')
+  }
+
+  //[POST] / courses / store
+  async store(req, res, next) {
+    try {
+      const formData = req.body
+      // Convert url youtube thành url image
+      formData.image = `https://img.youtube.com/vi/${req.body.video}/mqdefault.jpg`
+      await Course.create(formData)
+      res.redirect('/')
+    } catch (error) {
+      next(error)
+    }
+  }
+```
+
+#### Update và PUT lên database
+- Thêm giao diện quản lí
++ Thêm `course/user/store-courses.hbs` render ra giao diện quản lí
+```hbs
+<div class="container mt-4">
+    <h2>Khoá học của tôi</h2>
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Tên khoá học</th>
+                    <th scope="col">Trình độ</th>
+                    <th scope="col" colspan="3">Thời gian</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each courses}}
+                    <tr>
+                        <th scope="row">{{sum @index 1}}</th>
+                        <td>{{this.name}}</td>
+                        <td>{{this.level}}</td>
+                        <td>{{this.createdAt}}</td>
+                        <td>
+                            <a href="/courses/{{this._id}}/edit" class="btn btn-light">Update</a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-light" data-id="{{this._id}}" data-bs-toggle="modal" data-bs-target="#deleteCourseModal">Delete</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+```
++ Thêm controller vào file `UserController.js`
+```js
+const Course = require('../models/Courses')
+const {multipleMongooseToObject} = require('../../util/mongoose')
+
+class UserController {
+    // [GET] / me/stored/courses
+    storedCourses(req, res, next) {
+        Course.find({})
+            .then(courses => res.render('user/stored-courses',{
+                courses: multipleMongooseToObject(courses)
+            }))
+            .catch(next)
+    }
+  }
+  
+  module.exports = new UserController();
+  
+```
+- Thêm route và update `index.js` trong `routes`
+```js
+const express = require('express')
+const router = express.Router()
+
+const userControler = require('../app/controllers/UserControler')
+
+router.get('/stored/courses', userControler.storedCourses)
+
+module.exports = router
+
+```
+
+- Thêm form update trong file edit.hbs
+```hbs
+<div class="mt-4">
+    <h3>Update courses</h3>
+    <form method="POST" action="/courses/{{course._id}}?_method=PUT">
+        <div class="mb-3">
+            <label for="name" class="form-label">Course name</label>
+            <input type="name" class="form-control" value="{{course.name}}" id="name" name="name">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Course description</label>
+            <textarea class="form-control" id="description" name="description">{{course.description}}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="video" class="form-label">Video ID</label>
+            <input type="text" class="form-control" value="{{course.video}}" id="video" name="video">
+        </div>
+         <div class="mb-3">
+            <label for="level" class="form-label">Level</label>
+            <input type="text" class="form-control" value="{{course.level}}" id="level" name="level">
+        </div>
+        <div class="mb-3">
+            <label for="energy" class="form-label">Place</label>
+            <input type="text" class="form-control" value="{{course.energy}}" id="energy" name="energy">
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+</div>
+```
+
+- Thêm controller cho CoursesController
+```js
+// [GET] / courses / :id /edit
+  edit(req, res, next) {
+    Course.findById(req.params.id)
+      .then(course => res.render('courses/edit', {
+        course: mongooseToObject(course)
+      }))
+      .catch(next)
+  }
+
+  // [PUT] / courses / :id 
+  async update(req, res, next) {
+    try {
+      await Course.updateOne({ _id: req.params.id }, req.body);
+      res.redirect('/user/stored/courses')
+    } catch(err) {
+      next(err)
+    }
+  }
+```
+- Thêm route cho xử lí trên
+```js
+// router đi đến trang chỉnh sửa khoá học
+router.get('/:id/edit',coursesController.edit)
+
+// Router chỉnh sửa khoá học và lưu lại và database
+router.put('/:id',coursesController.update)
+```
+#### Xử lí thao tác delete
+- Thêm controller
+```js
+ async delete(req, res, next) {
+    try {
+      await Course.deleteOne({ _id: req.params.id });
+      res.redirect('back')
+    } catch(err) {
+      next(err)
+    }
+  }
+}
+```
+- Thêm route
+```js
+// Router xoá khoá học
+router.delete('/:id',coursesController.delete)
+```
+- Cập nhật UI và xử lí thao tác `stores-courses`
+```hbs
+<!-- Confirm delete modal -->
+<div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-labelledby="deleteCourseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCourseModalLabel">Submit your change</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>The course will be deleted permanently and cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirmDeleteButton" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Undo</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{!-- Delete hidden form --}}
+<form name="deleteForm" method="POST" action=""></form>
+
+<script>
+    const deleteCourseModal = document.getElementById('deleteCourseModal')
+    if (deleteCourseModal) {
+        let courseId
+        let deleteForm = document.forms['deleteForm']
+        deleteCourseModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget
+            courseId = button.getAttribute('data-id')
+        })
+
+        const btnDeleteCourse = document.getElementById('confirmDeleteButton')
+        btnDeleteCourse.onclick = () => {
+            deleteForm.action = '/courses/' + courseId + '?_method=DELETE'
+            deleteForm.submit()
+        }
+    }
+</script>
+
+```
